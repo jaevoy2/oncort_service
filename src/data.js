@@ -39,10 +39,24 @@ export const industries = [
 ]
 
 export const services = [
-  { icon: 'floor', title: 'Floor Maintenance', text: 'Floor stripping, waxing and routine care that restore shine and extend floor life.' },
+  { icon: 'floor', page: 'floor-maintenance', title: 'Floor Maintenance', text: 'Floor stripping, waxing and routine care that restore shine and extend floor life.' },
   { icon: 'shield', title: 'Disinfection', text: 'Hospital-grade disinfectants help you meet industry standards and get rid of germs.' },
   { icon: 'building', title: 'Janitorial Service', text: 'Customizable, professional, quality-driven daily or weekly cleaning plans.' },
-  { icon: 'sparkle', title: 'Additional Services', text: 'Tailored extras for your building. Ask us about anything you need.' },
+  { icon: 'sparkle', page: 'additional-services', title: 'Additional Services', text: 'Tailored extras for your building. Ask us about anything you need.' },
+]
+
+export const floorServices = [
+  { title: 'VCT Tile', text: 'Strip and wax, or strip and recoat.' },
+  { title: 'Carpet Cleaning', text: 'Hot water extraction or bonnet cleaning.' },
+  { title: 'Concrete', text: 'Polishing for a durable, easy-to-clean surface.' },
+  { title: 'Pressure Washing', text: 'Removes built-up dirt on exteriors and walkways.' },
+]
+
+export const extraServices = [
+  { title: 'Day Porter', text: 'On-site support during evenings or your busiest times: restroom monitoring, restocking, entrances, kitchens, common areas and heavy trash removal. Hourly or monthly contract.' },
+  { title: 'Emergency Cleaning', text: 'Immediate help for urgent or unexpected cleaning problems.' },
+  { title: 'One-Time Cleaning', text: 'A thorough clean before opening day or after renovations, removing dirt, debris and germs.' },
+  { title: 'Ordered Supplies', text: 'Paper products, soap, sanitizer, wipes, trash bags, detergents and glass cleaner, stocked for you.' },
 ]
 
 export const steps = [

@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import Icon from './Icon'
 import logo from './assets/logo.png'
 import { notifyVisit } from './notifyVisit'
-import { business, nav, images, industries, services, steps, employment } from './data'
+import { business, nav, images, industries, services, steps, employment, floorServices, extraServices } from './data'
 
 function Logo() {
   return (
@@ -104,10 +104,55 @@ function Services() {
             <div className="icon"><Icon name={s.icon} size={24} /></div>
             <h3>{s.title}</h3>
             <p>{s.text}</p>
+            {s.page && <a className="more" href={`#/${s.page}`}>Learn more →</a>}
           </div>
         ))}
       </div>
     </section>
+  )
+}
+
+const pages = {
+  'floor-maintenance': {
+    eyebrow: 'Floor Maintenance',
+    title: 'Safer, cleaner, longer-lasting floors',
+    intro: 'Regular floor care helps prevent accidents and illness, removes stains, dirt and allergens, and extends the life of your flooring.',
+    img: images.commitment,
+    items: floorServices,
+  },
+  'additional-services': {
+    eyebrow: 'Additional Services',
+    title: 'Extras tailored to your building',
+    intro: 'Beyond everyday janitorial care, we offer flexible services that fill the gaps in your facility.',
+    img: images.about,
+    items: extraServices,
+  },
+}
+
+function ServicePage({ slug }) {
+  const p = pages[slug]
+  return (
+    <>
+      <section className="page-hero">
+        <a className="back" href="#services">← All services</a>
+        <p className="eyebrow">{p.eyebrow}</p>
+        <h1>{p.title}</h1>
+        <p>{p.intro}</p>
+        <a className="btn btn-lime" href="#contact">Get a quote</a>
+      </section>
+      <section className="section split">
+        <img data-reveal="mask" src={p.img} alt={p.eyebrow} />
+        <ol className="rows" data-stagger>
+          {p.items.map((it, i) => (
+            <li key={it.title}>
+              <span>{String(i + 1).padStart(2, '0')}</span>
+              <div><h3>{it.title}</h3><p>{it.text}</p></div>
+            </li>
+          ))}
+        </ol>
+      </section>
+      <Contact />
+    </>
   )
 }
 
@@ -270,20 +315,51 @@ function Commitment() {
 
 function Employment() {
   return (
-    <section id="employment" className="section alt">
-      <div className="head" data-reveal>
+    <section id="employment" className="section alt emp">
+      <div data-reveal="left">
         <p className="eyebrow">Employment</p>
         <h2>A team you can trust</h2>
+        <p className="lead">Join a team that takes pride in its work. Every member goes through the same process.</p>
+        <ol className="rows">
+          {employment.slice(1).map((e, i) => (
+            <li key={e.title}>
+              <span>{String(i + 1).padStart(2, '0')}</span>
+              <div><h3>{e.title}</h3><p>{e.text}</p></div>
+            </li>
+          ))}
+        </ol>
       </div>
-      <div className="grid4" data-stagger>
-        {employment.map((e) => (
-          <div className="card" key={e.title}>
-            <h3>{e.title}</h3>
-            <p>{e.text}</p>
-          </div>
-        ))}
-      </div>
+      <ApplyForm />
     </section>
+  )
+}
+
+// No backend: the application opens the visitor's email client addressed to Oncort.
+function ApplyForm() {
+  const submit = (e) => {
+    e.preventDefault()
+    const f = new FormData(e.target)
+    const body = ['name', 'email', 'phone', 'position', 'availability', 'experience']
+      .map((k) => `${k}: ${f.get(k) || ''}`)
+      .join('\n')
+    window.location.href = `mailto:${business.email}?subject=${encodeURIComponent('Employment Application')}&body=${encodeURIComponent(body)}`
+  }
+  return (
+    <form id="apply" className="apply" onSubmit={submit} data-reveal="right">
+      <h3>Apply for employment</h3>
+      <input name="name" required placeholder="Full name" />
+      <input name="email" required type="email" placeholder="Email address" />
+      <input name="phone" required type="tel" placeholder="Phone" />
+      <select name="position" defaultValue="Cleaner">
+        <option>Cleaner</option>
+        <option>Day Porter</option>
+        <option>Floor Technician</option>
+        <option>Supervisor</option>
+      </select>
+      <input name="availability" placeholder="Availability (e.g. evenings, weekends)" />
+      <textarea name="experience" rows="4" placeholder="Tell us about your experience" />
+      <button className="btn btn-dark" type="submit">Send Application</button>
+    </form>
   )
 }
 
@@ -346,15 +422,32 @@ function Footer() {
         For security and analytics we log basic visit details: IP address, approximate location, device and browser.
       </p>
       <div className="social">
-        <a href="#home">Facebook</a><a href="#home">Twitter</a><a href="#home">LinkedIn</a><a href="#home">YouTube</a>
+        <a href="https://www.facebook.com/pages/Oncort-Professional-Services/232281916820434">Facebook</a>
+        <a href="https://twitter.com/OncortPro">Twitter</a>
+        <a href="http://www.linkedin.com/company/oncort-professional-services">LinkedIn</a>
+        <a href="https://www.youtube.com/channel/UCKPmj8ywHs8k9JJeB3Wtnzw">YouTube</a>
       </div>
     </footer>
   )
 }
 
+const getRoute = () => (window.location.hash.startsWith('#/') ? window.location.hash.slice(2) : '')
+
 export default function App() {
+  const [route, setRoute] = useState(getRoute)
   useEffect(() => {
     notifyVisit()
+    const onHash = () => {
+      const r = getRoute()
+      setRoute(r)
+      if (r) return window.scrollTo(0, 0)
+      // back on home: wait for it to render, then scroll to the section
+      setTimeout(() => document.getElementById(window.location.hash.slice(1))?.scrollIntoView(), 0)
+    }
+    window.addEventListener('hashchange', onHash)
+    return () => window.removeEventListener('hashchange', onHash)
+  }, [])
+  useEffect(() => {
     document.querySelectorAll('[data-stagger]').forEach((el) =>
       [...el.children].forEach((c, i) => c.style.setProperty('--i', i)),
     )
@@ -364,11 +457,12 @@ export default function App() {
     )
     document.querySelectorAll('[data-reveal],[data-stagger]').forEach((el) => io.observe(el))
     return () => io.disconnect()
-  }, [])
+  }, [route])
   return (
     <>
       <Header />
       <main>
+        {pages[route] ? <ServicePage slug={route} /> : (<>
         <Hero />
         <About />
         <Services />
@@ -379,6 +473,7 @@ export default function App() {
         <Employment />
         <Referral />
         <Contact />
+        </>)}
       </main>
       <Footer />
     </>
